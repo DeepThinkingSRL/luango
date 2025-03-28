@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"image/color"
 	"image/png"
 	"os"
 	"path/filepath"
@@ -11,6 +12,8 @@ import (
 	"github.com/faiface/beep/speaker"
 	"github.com/faiface/beep/wav"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	"golang.org/x/image/font/basicfont"
 
 	lua "github.com/yuin/gopher-lua"
 )
@@ -64,6 +67,12 @@ func registerGameFunctions(L *lua.LState, em *EntityManager, player *Entity) {
 	L.SetGlobal("log", L.NewFunction(func(L *lua.LState) int {
 		msg := L.ToString(1)
 		fmt.Println("[Lua]:", msg)
+		return 0
+	}))
+
+	L.SetGlobal("debug", L.NewFunction(func(L *lua.LState) int {
+		val := L.ToString(1)
+		fmt.Println("[DEBUG]:", val)
 		return 0
 	}))
 
@@ -132,19 +141,29 @@ func keyFromString(k string) ebiten.Key {
 		return ebiten.KeyS
 	case "D":
 		return ebiten.KeyD
+	case "F3":
+		return ebiten.KeyF3
 	default:
 		return 0
 	}
 }
 
 type Game struct {
-	luaState *lua.LState
-	em       *EntityManager
-	player   *Entity
-	started  bool
+	luaState  *lua.LState
+	em        *EntityManager
+	player    *Entity
+	started   bool
+	showDebug bool
+	frame     int
 }
 
 func (g *Game) Update() error {
+	g.frame++
+	if ebiten.IsKeyPressed(ebiten.KeyF3) {
+		g.showDebug = !g.showDebug
+		time.Sleep(200 * time.Millisecond)
+	}
+
 	if !g.started {
 		g.started = true
 		if fn := g.luaState.GetGlobal("on_start"); fn.Type() == lua.LTFunction {
@@ -169,6 +188,12 @@ func (g *Game) Draw(screen *ebiten.Image) {
 			opts.GeoM.Translate(e.Position.X, e.Position.Y)
 			screen.DrawImage(e.Sprite, opts)
 		}
+	}
+
+	if g.showDebug {
+		text.Draw(screen, "Luango Debug Mode", basicfont.Face7x13, 10, 20, color.White)
+		text.Draw(screen, fmt.Sprintf("Player Pos: X=%.0f Y=%.0f", g.player.Position.X, g.player.Position.Y), basicfont.Face7x13, 10, 40, color.White)
+		text.Draw(screen, fmt.Sprintf("Frame: %d", g.frame), basicfont.Face7x13, 10, 60, color.White)
 	}
 }
 
