@@ -111,6 +111,10 @@ type Game struct {
 	
 	// Window state
 	screenWidth, screenHeight int
+	
+	// Input state tracking for proper key detection
+	keyStates map[ebiten.Key]bool
+	lastKeyStates map[ebiten.Key]bool
 }
 
 func registerGameFunctions(L *lua.LState, em *EntityManager, player *Entity) {
@@ -207,9 +211,43 @@ func (g *Game) addLogMessage(msg string) {
 	fmt.Println(msg) // Also print to console
 }
 
+// initializeInputSystem initializes the input state tracking
+func (g *Game) initializeInputSystem() {
+	g.keyStates = make(map[ebiten.Key]bool)
+	g.lastKeyStates = make(map[ebiten.Key]bool)
+	
+	// Initialize tracking for important keys
+	keys := []ebiten.Key{
+		ebiten.KeyF1, ebiten.KeyF2, ebiten.KeyF3, ebiten.KeyF11,
+		ebiten.KeyArrowUp, ebiten.KeyArrowDown, ebiten.KeyArrowLeft, ebiten.KeyArrowRight,
+		ebiten.KeyW, ebiten.KeyA, ebiten.KeyS, ebiten.KeyD,
+		ebiten.KeyR, ebiten.KeyEqual, ebiten.KeyMinus,
+		ebiten.KeyKPAdd, ebiten.KeyKPSubtract,
+	}
+	
+	for _, key := range keys {
+		g.keyStates[key] = false
+		g.lastKeyStates[key] = false
+	}
+}
+
+// updateInputState updates the current key states
+func (g *Game) updateInputState() {
+	// Save previous states
+	for key := range g.keyStates {
+		g.lastKeyStates[key] = g.keyStates[key]
+		g.keyStates[key] = ebiten.IsKeyPressed(key)
+	}
+}
+
+// isKeyJustPressed returns true if key was just pressed (not held)
+func (g *Game) isKeyJustPressed(key ebiten.Key) bool {
+	return g.keyStates[key] && !g.lastKeyStates[key]
+}
+
 // handleCameraControls manages camera movement and zoom
 func (g *Game) handleCameraControls() {
-	// Camera movement with arrow keys or WASD
+	// Camera movement with arrow keys or WASD (continuous for smooth movement)
 	moveSpeed := 5.0 / g.camera.Zoom // Slower movement when zoomed in
 	
 	if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) || ebiten.IsKeyPressed(ebiten.KeyA) {
@@ -225,26 +263,27 @@ func (g *Game) handleCameraControls() {
 		g.camera.Y += moveSpeed
 	}
 	
-	// Zoom with mouse wheel or +/- keys
+	// Zoom with mouse wheel or +/- keys (just pressed for discrete zoom levels)
 	_, wheelY := ebiten.Wheel()
-	if wheelY > 0 || ebiten.IsKeyPressed(ebiten.KeyEqual) || ebiten.IsKeyPressed(ebiten.KeyKPAdd) {
+	if wheelY > 0 || g.isKeyJustPressed(ebiten.KeyEqual) || g.isKeyJustPressed(ebiten.KeyKPAdd) {
 		g.camera.Zoom *= 1.1
 		if g.camera.Zoom > 3.0 {
 			g.camera.Zoom = 3.0
 		}
+		g.addLogMessage(fmt.Sprintf("Zoom: %.2fx", g.camera.Zoom))
 	}
-	if wheelY < 0 || ebiten.IsKeyPressed(ebiten.KeyMinus) || ebiten.IsKeyPressed(ebiten.KeyKPSubtract) {
+	if wheelY < 0 || g.isKeyJustPressed(ebiten.KeyMinus) || g.isKeyJustPressed(ebiten.KeyKPSubtract) {
 		g.camera.Zoom /= 1.1
 		if g.camera.Zoom < 0.5 {
 			g.camera.Zoom = 0.5
 		}
+		g.addLogMessage(fmt.Sprintf("Zoom: %.2fx", g.camera.Zoom))
 	}
 	
-	// Reset camera with R key
-	if ebiten.IsKeyPressed(ebiten.KeyR) {
+	// Reset camera with R key (just pressed to prevent multiple resets)
+	if g.isKeyJustPressed(ebiten.KeyR) {
 		g.camera = NewCamera()
 		g.addLogMessage("Camera reset")
-		time.Sleep(200 * time.Millisecond)
 	}
 }
 
@@ -346,34 +385,34 @@ func (g *Game) handleMouseInteraction() {
 func (g *Game) Update() error {
 	g.frame++
 	
+	// Update input state first
+	g.updateInputState()
+	
 	// Update screen size for fullscreen support
 	g.screenWidth, g.screenHeight = ebiten.WindowSize()
 	
 	// Toggle debug info with F3
-	if ebiten.IsKeyPressed(ebiten.KeyF3) {
+	if g.isKeyJustPressed(ebiten.KeyF3) {
 		g.showDebug = !g.showDebug
-		time.Sleep(200 * time.Millisecond)
+		g.addLogMessage(fmt.Sprintf("Debug mode: %t", g.showDebug))
 	}
 	
 	// Toggle editor mode with F1
-	if ebiten.IsKeyPressed(ebiten.KeyF1) {
+	if g.isKeyJustPressed(ebiten.KeyF1) {
 		g.editorMode = !g.editorMode
 		g.addLogMessage(fmt.Sprintf("Switched to %s mode", map[bool]string{true: "Editor", false: "Play"}[g.editorMode]))
-		time.Sleep(200 * time.Millisecond)
 	}
 	
 	// Toggle fullscreen with F11
-	if ebiten.IsKeyPressed(ebiten.KeyF11) {
+	if g.isKeyJustPressed(ebiten.KeyF11) {
 		ebiten.SetFullscreen(!ebiten.IsFullscreen())
 		g.addLogMessage("Toggled fullscreen")
-		time.Sleep(200 * time.Millisecond)
 	}
 	
 	// Toggle inspector with F2 (only in editor mode)
-	if g.editorMode && ebiten.IsKeyPressed(ebiten.KeyF2) {
+	if g.editorMode && g.isKeyJustPressed(ebiten.KeyF2) {
 		g.inspectorOpen = !g.inspectorOpen
 		g.addLogMessage(fmt.Sprintf("Inspector %s", map[bool]string{true: "opened", false: "closed"}[g.inspectorOpen]))
-		time.Sleep(200 * time.Millisecond)
 	}
 	
 	// Camera controls in editor mode
@@ -728,7 +767,12 @@ func main() {
 		camera:         NewCamera(),
 		screenWidth:    1200,
 		screenHeight:   800,
+		keyStates:      make(map[ebiten.Key]bool),
+		lastKeyStates:  make(map[ebiten.Key]bool),
 	}
+	
+	// Initialize input system
+	game.initializeInputSystem()
 	
 	// Add initial log messages
 	game.addLogMessage("Luango Engine initialized (Clean)")
