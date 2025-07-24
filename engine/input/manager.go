@@ -1,28 +1,26 @@
 package input
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
-	"time"
+"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Manager struct {
-	keyStates map[ebiten.Key]bool
+	keyStates     map[ebiten.Key]bool
 	lastKeyStates map[ebiten.Key]bool
-	keyPressTimes map[ebiten.Key]time.Time
-	debounceTime time.Duration
+	mouseX        int
+	mouseY        int
+	lastMouseX    int
+	lastMouseY    int
 }
 
 func NewManager() *Manager {
 	return &Manager{
-		keyStates: make(map[ebiten.Key]bool),
+		keyStates:     make(map[ebiten.Key]bool),
 		lastKeyStates: make(map[ebiten.Key]bool),
-		keyPressTimes: make(map[ebiten.Key]time.Time),
-		debounceTime: 200 * time.Millisecond,
 	}
 }
 
-func (m *Manager) Update() {
-	// Update key states
+func (im *Manager) Initialize() {
 	keys := []ebiten.Key{
 		ebiten.KeyF1, ebiten.KeyF2, ebiten.KeyF3, ebiten.KeyF11,
 		ebiten.KeyArrowUp, ebiten.KeyArrowDown, ebiten.KeyArrowLeft, ebiten.KeyArrowRight,
@@ -33,44 +31,77 @@ func (m *Manager) Update() {
 	}
 	
 	for _, key := range keys {
-		m.lastKeyStates[key] = m.keyStates[key]
-		m.keyStates[key] = ebiten.IsKeyPressed(key)
+		im.keyStates[key] = false
+		im.lastKeyStates[key] = false
 	}
 }
 
-func (m *Manager) IsKeyPressed(key ebiten.Key) bool {
-	return m.keyStates[key]
-}
-
-func (m *Manager) IsKeyJustPressed(key ebiten.Key) bool {
-	// Check if enough time has passed since last press (debouncing)
-	if lastPressTime, exists := m.keyPressTimes[key]; exists {
-		if time.Since(lastPressTime) < m.debounceTime {
-			return false
-		}
+func (im *Manager) Update() {
+	for key := range im.keyStates {
+		im.lastKeyStates[key] = im.keyStates[key]
+		im.keyStates[key] = ebiten.IsKeyPressed(key)
 	}
 	
-	// Check if key was just pressed
-	if m.keyStates[key] && !m.lastKeyStates[key] {
-		m.keyPressTimes[key] = time.Now()
-		return true
-	}
-	
-	return false
+	im.lastMouseX = im.mouseX
+	im.lastMouseY = im.mouseY
+	im.mouseX, im.mouseY = ebiten.CursorPosition()
 }
 
-func (m *Manager) IsKeyReleased(key ebiten.Key) bool {
-	return !m.keyStates[key] && m.lastKeyStates[key]
+func (im *Manager) IsKeyJustPressed(key ebiten.Key) bool {
+	return im.keyStates[key] && !im.lastKeyStates[key]
 }
 
-func (m *Manager) GetMousePosition() (int, int) {
-	return ebiten.CursorPosition()
+func (im *Manager) IsKeyPressed(key ebiten.Key) bool {
+	return ebiten.IsKeyPressed(key)
 }
 
-func (m *Manager) IsMouseButtonPressed(button ebiten.MouseButton) bool {
+func (im *Manager) GetMousePosition() (int, int) {
+	return im.mouseX, im.mouseY
+}
+
+func (im *Manager) GetMouseDelta() (int, int) {
+	return im.mouseX - im.lastMouseX, im.mouseY - im.lastMouseY
+}
+
+func (im *Manager) IsMouseButtonPressed(button ebiten.MouseButton) bool {
 	return ebiten.IsMouseButtonPressed(button)
 }
 
-func (m *Manager) GetWheelDelta() (float64, float64) {
+func (im *Manager) GetWheelDelta() (float64, float64) {
 	return ebiten.Wheel()
+}
+
+func KeyFromString(k string) ebiten.Key {
+	switch k {
+	case "ArrowUp":
+		return ebiten.KeyArrowUp
+	case "ArrowDown":
+		return ebiten.KeyArrowDown
+	case "ArrowLeft":
+		return ebiten.KeyArrowLeft
+	case "ArrowRight":
+		return ebiten.KeyArrowRight
+	case "Space":
+		return ebiten.KeySpace
+	case "W":
+		return ebiten.KeyW
+	case "A":
+		return ebiten.KeyA
+	case "S":
+		return ebiten.KeyS
+	case "D":
+		return ebiten.KeyD
+	case "F1":
+		return ebiten.KeyF1
+	case "F2":
+		return ebiten.KeyF2
+	case "F3":
+		return ebiten.KeyF3
+	case "F11":
+		return ebiten.KeyF11
+	case "R":
+		return ebiten.KeyR
+	default:
+		return 0
+	}
 }

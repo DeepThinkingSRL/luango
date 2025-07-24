@@ -1,8 +1,9 @@
 package camera
 
 import (
+	"fmt"
+
 	"github.com/hajimehoshi/ebiten/v2"
-	"time"
 )
 
 type Camera struct {
@@ -10,10 +11,18 @@ type Camera struct {
 	Zoom float64  // Zoom level (1.0 = normal)
 }
 
+func New() *Camera {
+	return &Camera{
+		X:    0,
+		Y:    0,
+		Zoom: 1.0,
+	}
+}
+
 func NewCamera() Camera {
 	return Camera{
-		X: 0,
-		Y: 0,
+		X:    0,
+		Y:    0,
 		Zoom: 1.0,
 	}
 }
@@ -24,9 +33,9 @@ func (c *Camera) Reset() {
 	c.Zoom = 1.0
 }
 
-func (c *Camera) Move(deltaX, deltaY float64) {
-	c.X += deltaX
-	c.Y += deltaY
+func (c *Camera) Move(dx, dy float64) {
+	c.X += dx
+	c.Y += dy
 }
 
 func (c *Camera) SetZoom(zoom float64) {
@@ -39,12 +48,8 @@ func (c *Camera) SetZoom(zoom float64) {
 	c.Zoom = zoom
 }
 
-func (c *Camera) ZoomIn() {
-	c.SetZoom(c.Zoom * 1.1)
-}
-
-func (c *Camera) ZoomOut() {
-	c.SetZoom(c.Zoom / 1.1)
+func (c *Camera) ZoomBy(factor float64) {
+	c.SetZoom(c.Zoom * factor)
 }
 
 // ScreenToWorld converts screen coordinates to world coordinates
@@ -61,51 +66,25 @@ func (c *Camera) WorldToScreen(worldX, worldY float64) (float64, float64) {
 	return screenX, screenY
 }
 
-// CreateTransformMatrix creates a camera transformation matrix for rendering
-func (c *Camera) CreateTransformMatrix() ebiten.GeoM {
+// GetTransformMatrix returns the camera transform matrix for rendering
+func (c *Camera) GetTransformMatrix() ebiten.GeoM {
 	var matrix ebiten.GeoM
 	matrix.Scale(c.Zoom, c.Zoom)
 	matrix.Translate(-c.X*c.Zoom, -c.Y*c.Zoom)
 	return matrix
 }
 
-// Update handles camera controls using an input manager
-func (c *Camera) Update(inputManager interface{}) {
-	// Calculate move speed based on zoom (slower when zoomed in)
-	moveSpeed := 5.0 / c.Zoom
+// FollowTarget smoothly moves camera to follow a target position
+func (c *Camera) FollowTarget(targetX, targetY float64, screenWidth, screenHeight int, lerpFactor float64) {
+	// Calculate desired camera position (center target on screen)
+	desiredX := targetX - float64(screenWidth)/(2*c.Zoom)
+	desiredY := targetY - float64(screenHeight)/(2*c.Zoom)
 	
-	// Handle movement using direct key checks for now
-	if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) || ebiten.IsKeyPressed(ebiten.KeyA) {
-		c.X -= moveSpeed
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyArrowRight) || ebiten.IsKeyPressed(ebiten.KeyD) {
-		c.X += moveSpeed
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyArrowUp) || ebiten.IsKeyPressed(ebiten.KeyW) {
-		c.Y -= moveSpeed
-	}
-	if ebiten.IsKeyPressed(ebiten.KeyArrowDown) || ebiten.IsKeyPressed(ebiten.KeyS) {
-		c.Y += moveSpeed
-	}
-	
-	// Handle zoom
-	_, wheelY := ebiten.Wheel()
-	if wheelY > 0 || ebiten.IsKeyPressed(ebiten.KeyEqual) || ebiten.IsKeyPressed(ebiten.KeyKPAdd) {
-		c.Zoom *= 1.1
-		if c.Zoom > 3.0 {
-			c.Zoom = 3.0
-		}
-	}
-	if wheelY < 0 || ebiten.IsKeyPressed(ebiten.KeyMinus) || ebiten.IsKeyPressed(ebiten.KeyKPSubtract) {
-		c.Zoom /= 1.1
-		if c.Zoom < 0.5 {
-			c.Zoom = 0.5
-		}
-	}
-	
-	// Reset camera
-	if ebiten.IsKeyPressed(ebiten.KeyR) {
-		c.Reset()
-		time.Sleep(200 * time.Millisecond)
-	}
+	// Smooth interpolation
+	c.X += (desiredX - c.X) * lerpFactor
+	c.Y += (desiredY - c.Y) * lerpFactor
+}
+
+func (c *Camera) String() string {
+	return fmt.Sprintf("Camera(%.1f, %.1f, %.2fx)", c.X, c.Y, c.Zoom)
 }
