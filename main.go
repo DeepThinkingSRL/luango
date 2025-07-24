@@ -415,10 +415,14 @@ func (g *Game) Update() error {
 		g.addLogMessage(fmt.Sprintf("Inspector %s", map[bool]string{true: "opened", false: "closed"}[g.inspectorOpen]))
 	}
 	
-	// Camera controls in editor mode
+	// Handle input based on mode
 	if g.editorMode {
+		// Editor mode: camera controls and mouse interaction
 		g.handleCameraControls()
 		g.handleMouseInteraction()
+	} else {
+		// Play mode: player movement
+		g.handlePlayerMovement()
 	}
 
 	// Only run lua scripts in play mode
@@ -717,6 +721,46 @@ func runLuaScripts(folder string, L *lua.LState) {
 		}
 		return nil
 	})
+}
+
+// handlePlayerMovement manages player movement in play mode
+func (g *Game) handlePlayerMovement() {
+	if g.player == nil {
+		return
+	}
+	
+	moveSpeed := 3.0
+	moved := false
+	
+	// Player movement with WASD or arrow keys
+	if ebiten.IsKeyPressed(ebiten.KeyArrowLeft) || ebiten.IsKeyPressed(ebiten.KeyA) {
+		g.player.Position.X -= moveSpeed
+		moved = true
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyArrowRight) || ebiten.IsKeyPressed(ebiten.KeyD) {
+		g.player.Position.X += moveSpeed
+		moved = true
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyArrowUp) || ebiten.IsKeyPressed(ebiten.KeyW) {
+		g.player.Position.Y -= moveSpeed
+		moved = true
+	}
+	if ebiten.IsKeyPressed(ebiten.KeyArrowDown) || ebiten.IsKeyPressed(ebiten.KeyS) {
+		g.player.Position.Y += moveSpeed
+		moved = true
+	}
+	
+	// Make camera follow player smoothly
+	if moved {
+		// Calculate desired camera position (center player on screen)
+		targetX := g.player.Position.X - float64(g.screenWidth)/(2*g.camera.Zoom)
+		targetY := g.player.Position.Y - float64(g.screenHeight)/(2*g.camera.Zoom)
+		
+		// Smooth camera following (lerp)
+		lerpFactor := 0.1
+		g.camera.X += (targetX - g.camera.X) * lerpFactor
+		g.camera.Y += (targetY - g.camera.Y) * lerpFactor
+	}
 }
 
 func main() {
