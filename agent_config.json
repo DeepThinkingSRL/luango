@@ -1,0 +1,56 @@
+{
+  "agent": {
+    "default_mode": "interactive",
+    "auto_save_session": true,
+    "session_file": ".luango_session.json",
+    "max_history": 100,
+    "max_pending": 20
+  },
+  "generators": {
+    "script": {
+      "enabled": true,
+      "output_directory": "mod",
+      "templates_directory": "templates",
+      "auto_reload": true
+    },
+    "sprite": {
+      "enabled": false,
+      "output_directory": "assets/sprites",
+      "supported_formats": ["png", "jpg"]
+    },
+    "sound": {
+      "enabled": false,
+      "output_directory": "assets/sounds",
+      "supported_formats": ["wav", "mp3", "ogg"]
+    }
+  },
+  "lua": {
+    "script_categories": {
+      "enemy": "mod/enemy",
+      "player": "mod/player", 
+      "items": "mod/items",
+      "behavior": "mod/behavior",
+      "system": "mod/system",
+      "world": "mod/world"
+    },
+    "auto_format": true,
+    "add_comments": true
+  },
+  "ui": {
+    "show_notifications": true,
+    "notification_duration": 3000,
+    "cli_prompt": "🤖 [Luango Agent] > ",
+    "colors": {
+      "success": "#00ff00",
+      "error": "#ff0000", 
+      "warning": "#ffff00",
+      "info": "#00ffff"
+    }
+  },
+  "advanced": {
+    "enable_callbacks": true,
+    "enable_lua_integration": true,
+    "debug_mode": false,
+    "log_level": "info"
+  }
+}
