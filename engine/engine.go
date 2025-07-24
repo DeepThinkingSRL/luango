@@ -6,13 +6,13 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"deepthinking.do/luango/engine/entity"
-	"deepthinking.do/luango/engine/camera"
-	"deepthinking.do/luango/engine/input"
-	"deepthinking.do/luango/engine/ui"
-	"deepthinking.do/luango/engine/audio"
-	"deepthinking.do/luango/engine/scripting"
-	"deepthinking.do/luango/engine/resources"
+	"deepthinking.do/luengo/engine/audio"
+	"deepthinking.do/luengo/engine/camera"
+	"deepthinking.do/luengo/engine/entity"
+	"deepthinking.do/luengo/engine/input"
+	"deepthinking.do/luengo/engine/resources"
+	"deepthinking.do/luengo/engine/scripting"
+	"deepthinking.do/luengo/engine/ui"
 )
 
 type Game struct {
@@ -32,9 +32,9 @@ type Game struct {
 	editorMode bool
 
 	// Editor state
-	isDragging   bool
-	dragStart    struct{ X, Y int }
-	dragEntity   *entity.Entity
+	isDragging bool
+	dragStart  struct{ X, Y int }
+	dragEntity *entity.Entity
 
 	// Window state
 	screenWidth, screenHeight int
@@ -66,7 +66,7 @@ func NewGame() *Game {
 func (g *Game) Initialize() error {
 	// Initialize all systems
 	g.inputManager.Initialize()
-	
+
 	if err := g.audioManager.Initialize(); err != nil {
 		return fmt.Errorf("failed to initialize audio: %w", err)
 	}
@@ -95,7 +95,7 @@ func (g *Game) Initialize() error {
 	}
 
 	// Initial log messages
-	g.ui.AddLogMessage("Luango Engine initialized (Modular)", g.frame)
+	g.ui.AddLogMessage("Luengo Engine initialized (Modular)", g.frame)
 	g.ui.AddLogMessage("Started in editor mode", g.frame)
 	g.ui.AddLogMessage("F1: Toggle Editor/Play mode", g.frame)
 	g.ui.AddLogMessage("F2: Toggle Inspector", g.frame)
@@ -318,7 +318,7 @@ func (g *Game) getEntityAt(worldX, worldY float64) *entity.Entity {
 		if e.Sprite != nil {
 			w, h := e.Sprite.Bounds().Dx(), e.Sprite.Bounds().Dy()
 			if worldX >= e.Position.X && worldX <= e.Position.X+float64(w) &&
-			   worldY >= e.Position.Y && worldY <= e.Position.Y+float64(h) {
+				worldY >= e.Position.Y && worldY <= e.Position.Y+float64(h) {
 				return e
 			}
 		}
@@ -372,7 +372,7 @@ func (g *Game) drawEntities(screen *ebiten.Image, viewportWidth, viewportHeight 
 			scaledW, scaledH := float64(w)*g.camera.Zoom, float64(h)*g.camera.Zoom
 
 			if screenX+scaledW >= 0 && screenX <= float64(viewportWidth) &&
-			   screenY+scaledH >= 0 && screenY <= float64(viewportHeight) {
+				screenY+scaledH >= 0 && screenY <= float64(viewportHeight) {
 
 				opts := &ebiten.DrawImageOptions{}
 				opts.GeoM.Concat(cameraMatrix)

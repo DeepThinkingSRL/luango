@@ -1,6 +1,6 @@
-# 🐧 Guía de Setup para Linux - Luango Engine
+# 🐧 Guía de Setup para Linux - Luengo Engine
 
-Esta guía te ayudará a configurar y ejecutar **Luango Engine** en sistemas Linux (Ubuntu/Debian y distribuciones similares).
+Esta guía te ayudará a configurar y ejecutar **Luengo Engine** en sistemas Linux (Ubuntu/Debian y distribuciones similares).
 
 ## 📋 Prerrequisitos
 
@@ -27,7 +27,7 @@ git --version
 
 ## 🔧 Instalación de Dependencias del Sistema
 
-Luango Engine utiliza **Ebiten** para gráficos y **ALSA** para audio, por lo que necesitas instalar las siguientes dependencias:
+Luengo Engine utiliza **Ebiten** para gráficos y **ALSA** para audio, por lo que necesitas instalar las siguientes dependencias:
 
 ### Ubuntu/Debian:
 ```bash
@@ -96,8 +96,8 @@ sudo pacman -S \
 
 ### 1. Clonar el repositorio
 ```bash
-git clone https://github.com/tu-usuario/luango.git
-cd luango
+git clone https://github.com/tu-usuario/luengo.git
+cd luengo
 ```
 
 ### 2. Descargar dependencias de Go
@@ -112,7 +112,7 @@ go run main.go
 
 Si todo está configurado correctamente, deberías ver algo como:
 ```
-[Engine] Starting Luango Engine
+[Engine] Starting Luengo Engine
 [Mod] Loading: mod/enemy/slime.lua
 [Lua]: 👾 Slime enemy module loaded!
 [Mod] Loading: mod/game/init.lua
@@ -129,12 +129,12 @@ Si todo está configurado correctamente, deberías ver algo como:
 
 ### Compilar binario optimizado:
 ```bash
-go build -ldflags="-s -w" -o luango main.go
+go build -ldflags="-s -w" -o luengo main.go
 ```
 
 ### Crear binario con información de debug:
 ```bash
-go build -o luango-debug main.go
+go build -o luengo-debug main.go
 ```
 
 ## ❌ Resolución de Problemas Comunes
@@ -215,4 +215,4 @@ Si encuentras problemas:
 
 ---
 
-¡Disfruta desarrollando con **Luango Engine**! 🎮✨
+¡Disfruta desarrollando con **Luengo Engine**! 🎮✨

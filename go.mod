@@ -1,4 +1,4 @@
-module deepthinking.do/luango
+module deepthinking.do/luengo
 
 go 1.22.5
 

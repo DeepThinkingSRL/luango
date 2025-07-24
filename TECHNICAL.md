@@ -1,8 +1,8 @@
-# 📘 Luango Engine – Technical Documentation
+# 📘 Luengo Engine – Technical Documentation
 
 ## 🧠 Overview
 
-Luango Engine is a modular, lightweight, scriptable 2D game engine built with Go and Lua. It’s designed for high-performance gameplay, real-time modding, and full Lua integration.
+Luengo Engine is a modular, lightweight, scriptable 2D game engine built with Go and Lua. It’s designed for high-performance gameplay, real-time modding, and full Lua integration.
 
 ---
 
@@ -26,7 +26,7 @@ Luango Engine is a modular, lightweight, scriptable 2D game engine built with Go
 ## 📦 Folder Structure
 
 ```
-luango/
+luengo/
 ├── assets/              # Sprites, audio, etc.
 ├── mod/                 # Lua scripts and mods
 │   ├── player/
@@ -86,4 +86,4 @@ end
 
 ---
 
-¡Hecho con amor en Luango Engine, mi amorsh! 💙
+¡Hecho con amor en Luengo Engine, mi amorsh! 💙

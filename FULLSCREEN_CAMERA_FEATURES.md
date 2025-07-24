@@ -1,4 +1,4 @@
-# Luango Engine - Fullscreen & Camera Features
+# Luengo Engine - Fullscreen & Camera Features
 
 ## Status
 ✅ **Successfully implemented fullscreen and camera system!**

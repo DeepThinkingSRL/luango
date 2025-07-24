@@ -1,7 +1,7 @@
-# Luango Engine - Editor UI Implementation
+# Luengo Engine - Editor UI Implementation
 
 ## Overview
-We have successfully implemented the first phase of the Luango Engine editor UI. The engine now features a complete editor interface with play/edit modes, entity selection, and real-time logging.
+We have successfully implemented the first phase of the Luengo Engine editor UI. The engine now features a complete editor interface with play/edit modes, entity selection, and real-time logging.
 
 ## Features Implemented
 
@@ -113,6 +113,6 @@ The current implementation includes:
 - Real-time logging system
 - Responsive UI panels
 
-Run with: `./luango`
+Run with: `./luengo`
 
 The engine starts in Editor Mode with the Inspector open, making it easy to immediately test all features.

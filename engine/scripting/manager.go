@@ -5,12 +5,12 @@ import (
 	"os"
 	"path/filepath"
 
-	lua "github.com/yuin/gopher-lua"
 	"github.com/hajimehoshi/ebiten/v2"
+	lua "github.com/yuin/gopher-lua"
 
-	"deepthinking.do/luango/engine/entity"
-	"deepthinking.do/luango/engine/audio"
-	"deepthinking.do/luango/engine/input"
+	"deepthinking.do/luengo/engine/audio"
+	"deepthinking.do/luengo/engine/entity"
+	"deepthinking.do/luengo/engine/input"
 )
 
 type Manager struct {

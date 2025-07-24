@@ -20,7 +20,7 @@ sudo pacman -S alsa-lib libx11 libxrandr libxcursor libxinerama libxi mesa glu l
 ## Ejecutar el Juego
 ```bash
 git clone <tu-repo>
-cd luango
+cd luengo
 go run main.go
 ```
 

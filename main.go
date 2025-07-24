@@ -5,15 +5,15 @@ import (
 
 	"github.com/hajimehoshi/ebiten/v2"
 
-	"deepthinking.do/luango/engine"
+	"deepthinking.do/luengo/engine"
 )
 
 func main() {
-	fmt.Println("🚀 [Engine] Starting Luango Engine - Modular Architecture")
+	fmt.Println("🚀 [Engine] Starting Luengo Engine - Modular Architecture")
 
 	// Set window properties
 	ebiten.SetWindowSize(1200, 800)
-	ebiten.SetWindowTitle("Luango Engine - Modular Editor")
+	ebiten.SetWindowTitle("Luengo Engine - Modular Editor")
 	ebiten.SetWindowResizingMode(ebiten.WindowResizingModeEnabled)
 
 	// Create and initialize game
